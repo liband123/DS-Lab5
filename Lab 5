@@ -1,0 +1,245 @@
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+
+public class AirlineSimulation {
+	private ArrayList<Passenger1> deltaPassengers;
+	private ArrayList<Passenger1> unitedPassengers;
+
+	public AirlineSimulation() {
+		deltaPassengers = new ArrayList<>();
+		unitedPassengers = new ArrayList<>();
+	
+	}
+	public class Passenger1 {
+		private String name;
+		private String seatNumber;
+		private String className;
+		private boolean checkedIn;
+
+		public Passenger1(String name, String seatNumber, String className) {
+			this.name = name;
+			this.seatNumber = seatNumber;
+			this.className = className;
+			this.checkedIn = false;
+		}
+
+		
+
+		public String getName() {
+			return name;
+		}
+
+		public String getSeatNumber() {
+			return seatNumber;
+		}
+
+		public String getClassName() {
+			return className;
+		}
+
+		public boolean isCheckedIn() {
+			return checkedIn;
+		}
+
+		public void setCheckedIn(boolean checkedIn) {
+			this.checkedIn = checkedIn;
+		}
+	}
+
+	
+
+	public void loadPassengerList(String airline, String filename) {
+		try {
+			Scanner fileReader = new Scanner(new File(filename));
+			while (fileReader.hasNextLine()) {
+				String line = fileReader.nextLine();
+				String[] parts = line.split(" ");
+				 String name = parts[0] + " " + parts[1];
+				String seatNumber = parts[2]+ " "+parts[3];
+				String className = parts[3];
+				Passenger1 passenger = new Passenger1(name, seatNumber, className);
+				if (airline.equals("Delta")) {
+					deltaPassengers.add(passenger);
+				} else if (airline.equals("United")) {
+					unitedPassengers.add(passenger);
+				}
+			}
+			fileReader.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+	}
+
+	public void checkInPassenger(String airline, String name) {
+		ArrayList<Passenger1> passengers = null;
+		if (airline.equals("Delta")) {
+			passengers = deltaPassengers;
+		} else if (airline.equals("United")) {
+			passengers = unitedPassengers;
+		}
+		boolean passengerFound = false;
+		for (Passenger1 passenger : passengers) {
+			if (passenger.getName().equals(name)) {
+				passenger.setCheckedIn(true);
+				passengerFound = true;
+				System.out.println("Passenger " + name + " is now checked in for " + airline + ".");
+				break;
+			}
+		}
+		if (!passengerFound) {
+			System.out.println("Passenger " + name + " is not on the " + airline + " passenger list.");
+		}
+	}
+
+	public void bookPassenger(String airline, String name, String className) {
+	    ArrayList<Passenger1> passengers = null;
+	    int capacity = 0;
+	    if (className.equals("First")) {
+	        capacity = 10;
+	    } else if (className.equals("Business")) {
+	        capacity = 10;
+	    } else if (className.equals("Economy")) {
+	        capacity = 20;
+	    }
+	    if (airline.equals("Delta")) {
+	        passengers = deltaPassengers;
+	    } else if (airline.equals("United")) {
+	        passengers = unitedPassengers;
+	    }
+	    String seatNumber = "";
+	    int bookedSeats = 0;
+	    for (Passenger1 passenger : passengers) {
+	        if (passenger.getClassName().equals(className)) {
+	            bookedSeats++;
+	        }
+	    }
+	    if (bookedSeats >= capacity) {
+	        System.out.println("Sorry, there are no available seats in " + className + " class for " + airline + ".");
+	    } else {
+	        for (int i = 1; i <= capacity; i++) {
+	            boolean seatTaken = false;
+	            for (Passenger1 passenger : passengers) {
+	                if (passenger.getSeatNumber().equals(Integer.toString(i))) {
+	                    seatTaken = true;
+	                    break;
+	                }
+	            }
+	            if (!seatTaken) {
+	                seatNumber = Integer.toString(i);
+	                break;
+	            }
+	        }
+			}
+			Passenger1 newPassenger = new Passenger1(name, seatNumber, className);
+			passengers.add(newPassenger);
+			System.out.println("Passenger " + name + " has been booked on " + airline + " flight in " + className + " class with seat number"+ seatNumber + className);
+		}
+		  public void printBoardingList(String airline) {
+		        ArrayList<Passenger1> passengers = null;
+		        if (airline.equals("Delta")) {
+		            passengers = deltaPassengers;
+		        } else if (airline.equals("United")) {
+		            passengers = unitedPassengers;
+		        }
+		        System.out.println("Boarding list for " + airline + ":");
+		       
+		        for (Passenger1 passenger : passengers) {
+		            if ( passenger.isCheckedIn()) {
+		                System.out.println(passenger.getName() + " - Seat " + passenger.getSeatNumber());
+		            }
+		        }
+		        
+		        for (Passenger1 passenger : passengers) {
+		            if ( passenger.isCheckedIn()) {
+		                System.out.println(passenger.getName() + " - Seat " + passenger.getSeatNumber());
+		            }
+		        }
+		        
+		        for (Passenger1 passenger : passengers) {
+		            if ( passenger.isCheckedIn()) {
+		                System.out.println(passenger.getName() + " - Seat " + passenger.getSeatNumber());
+		            }
+		        }
+		    }
+		    
+		    public void runSimulation() {
+		   	 Random random = new Random();
+		    
+		        for (int i = 1; i <= 10; i++) {
+		            boolean newPassengers = random.nextDouble() < 0.1;
+		            if (newPassengers) {
+		                int numNewPassengers = random.nextInt(10) + 1;
+		                for (int j = 1; j <= numNewPassengers; j++) {
+		                    String name = "Passenger " + (deltaPassengers.size() + unitedPassengers.size() + j);
+		                    String[] classes = {"First", "Business", "Economy"};
+		                    String className = classes[random.nextInt(3)];
+		                    boolean booked = false;
+		                    if (random.nextDouble() < 0.8) {
+		                        bookPassenger("Delta", name, className);
+		                        booked = true;
+		                    }
+		                    if (!booked || random.nextDouble() < 0.5) {
+		                        bookPassenger("United", name, className);
+		                    }
+		                }
+		            }
+		            for (Passenger1 passenger : deltaPassengers) {
+		                if (!passenger.isCheckedIn() && random.nextDouble() < 0.05) {
+		                    checkInPassenger("Delta", passenger.getName());
+		                }
+		            }
+		            for (Passenger1 passenger : unitedPassengers) {
+		                if (!passenger.isCheckedIn() && random.nextDouble() < 0.05) {
+		                    checkInPassenger("United", passenger.getName());
+		                }
+		            }
+		        }
+		        System.out.println("Delta passengers for boarding:");
+		        printBoardingList("Delta");
+		        System.out.println();
+		        System.out.println("United passengers for boarding:");
+		        printBoardingList("United");
+		    }
+			public static void main(String[] args) {
+			    AirlineSimulation simulation = new AirlineSimulation();
+			    simulation.loadPassengerList("Delta", "Delta.txt");
+			    simulation.loadPassengerList("United", "United.txt");
+			    Scanner scanner = new Scanner(System.in);
+			    while (true) {
+			        System.out.println("Choose an option:");
+			        System.out.println("1. Check-in passenger");
+			        System.out.println("2. Book passenger");
+			        System.out.println("3. Print boarding list");
+			        System.out.println("4. Run simulation");
+			        System.out.println("5. Exit");
+			        int choice = scanner.nextInt();
+			        scanner.nextLine();
+			        if (choice == 1) {
+			            System.out.println("Enter airline (Delta or United):");
+			            String airline = scanner.nextLine();
+			            System.out.println("Enter passenger name:");
+			            String name = scanner.nextLine();
+			            simulation.checkInPassenger(airline, name);
+			        } else if (choice == 2) {
+			            System.out.println("Enter airline (Delta or United):");
+			            String airline = scanner.nextLine();
+			            System.out.println("Enter passenger name:");
+			            String name = scanner.nextLine();
+			            System.out.println("Enter class (First, Business, or Economy):");
+			            String className = scanner.nextLine();
+			            simulation.bookPassenger(airline, name, className);
+			        } else if (choice == 3) {
+			            System.out.println("Enter airline (Delta or United):");
+			            String airline = scanner.nextLine();
+			            simulation.printBoardingList(airline);
+			        } else if (choice == 4) {
+			            simulation.runSimulation();
+			        } else if (choice == 5) {
+			            break;
+			        }
+			    }
+			    
+			}}
